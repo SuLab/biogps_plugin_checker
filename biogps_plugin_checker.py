@@ -13,7 +13,8 @@ url = "http://biogps.org/plugin/all/?format=json&limit=381"
 # input  = url
 # output = url_list
 
-def ExtractUrl(url,gene_id_list):    
+'''def ExtractUrl(url,gene_id_list):
+    
     url_list = []
     req = urllib2.Request(url)
     opener = urllib2.build_opener()
@@ -25,8 +26,7 @@ def ExtractUrl(url,gene_id_list):
             url1 = item.get('url')
             url_list.append(url1)
     return url_list
-
-
+'''
 
 # Function 2 - should open the input url, parse it to plugin_id_list
 # input = url
@@ -46,14 +46,14 @@ def ExtractPluginId(url):
     #print "PLUGIN_IDS' : ", plugin_id_list
     return plugin_id_list
 
-
-
+    
 # Function 3 - should create new_url_list using input plugin_id_list and human_gene_id_list
 # input = plugin_id_list
 # input = human_gene_id_list
 # output = new_url_list
 
-def UrlList(plugin_id_list,gene_id_list):    
+def UrlList(plugin_id_list,gene_id_list):
+    
     new_url_list = []
     for x in gene_id_list:
         for y in plugin_id_list:
@@ -62,14 +62,16 @@ def UrlList(plugin_id_list,gene_id_list):
     return new_url_list
 
 
-
 # Function 4
 # input  new_url_list
 # output status_code_list or a dictonary whose key=new_url_list elements and value=status_code
 
 def StatusCode(new_url_list):
-    dictionary = dict()   
+    dictionary = dict()
+    l1 = []
     
+    #sock=socket.socket()
+    #sock.settimeout(60)
     for i in new_url_list:
         #print "key: ",i
         data = urllib2.urlopen(i)
@@ -81,15 +83,16 @@ def StatusCode(new_url_list):
                 h = httplib2.Http(timeout=30)
                 resp,content = h.request(data2)
                 d1 = resp.status
-                print i, "  ",d1
+                #print i, d1
                 #print "STATUS_CODE: ",d1
                 dictionary[i] = d1
                 #print dictionary
                 
             except:
                 dictionary[i] = "error"
-                print i, "  Error"
-                #print dictionary                        
+                #print "Error"
+                    #print dictionary
+                        
     return dictionary
 
 
@@ -104,7 +107,7 @@ def StatusCode(new_url_list):
 
 def StatusCodeInCsv(url,gene_id_list):
     # Open text file and add header
-    f = open("myfile_human_genes.txt",'w')
+    f = open("myfile_mouse_genes.txt",'w')
     f.write("\t")    
     for m in gene_id_list:
         string = str(m) + "\t"
@@ -118,7 +121,7 @@ def StatusCodeInCsv(url,gene_id_list):
     dictionary = dict()
     plugin_id_list = ExtractPluginId(url)
     #print " ----------- Extracted plugin id from url ---------- "
-x    #urllist = UrlList(plugin_id_list,gene_id_list)
+    urllist = UrlList(plugin_id_list,gene_id_list)
     #print " ----------- Created URL list to find out status code -------- "
     dictionary = StatusCode(urllist)
     #print " ----------- Created dictionary for URL and Status code ------- "
@@ -136,9 +139,9 @@ x    #urllist = UrlList(plugin_id_list,gene_id_list)
     f.close()
 
     #Generate csv from text file
-    c=open("output_human_genes.csv","wb")
+    c=open("output_mouse_genes.csv","wb")
     writer = csv.writer(c)
-    f = open("myfile_human_genes.txt",'r')
+    f = open("myfile_mouse_genes.txt",'r')
     data = f.readlines()
     for line in data:
         words = line.split("\t")
@@ -150,5 +153,5 @@ x    #urllist = UrlList(plugin_id_list,gene_id_list)
     c.close()
     return f
 
-print StatusCodeInCsv(url,human_gene_id_list)
+print StatusCodeInCsv(url,mouse_gene_id_list)
 
