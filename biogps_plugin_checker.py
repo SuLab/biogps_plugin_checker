@@ -2,8 +2,9 @@ import urllib2      #To open url
 import json         #To load json data
 import httplib2     #To get status code
 
+#human_gene_id_list = [1017,7157,695]
 human_gene_id_list = [1017,7157,695,3702,5599,3558,1743,65220,132,3485]
-mouse_gene_id_list = [12566,12229,16428,26419,16183,78920,192185,11534,16008]
+mouse_gene_id_list = [12566,22059,12229,16428,26419,16183,78920,192185,11534,16008]
 rat_gene_id_list = [362817,24842,367901,363577,116554,116562,299201,100125370,25368,25662]
 url = "http://biogps.org/plugin/all/?format=json&limit=381"
 
@@ -100,6 +101,7 @@ def get_html_table(url,gene_id_list):
    
     # Create column for gene_id_list, keep first column void to match rows indentation.
     headerlist = list(gene_id_list)
+    headerlist.append('Number of Pluginid not having "200" statuscode')
     headerlist.insert(0,"geneid/pluginid")
     if headerlist:
         html.append("<tr>")
@@ -113,14 +115,20 @@ def get_html_table(url,gene_id_list):
     
     # Scan and generate status code (row=pluginid, col=geneid)
     for j in plugin_id_list:
+        count = 0       #count for Not having 200 status code
+        plugin_url = "http://biogps.org/plugin/"+str(j)+"/"
         html.append("<tr>")
-        html.append('<td>%s</td>'%j)     
+        html.append('<td><a href=%s>%s</a>'%(plugin_url,j))
+        html.append('</td>')
         for i in gene_id_list:
             main_url = "http://biogps.org/plugin/"+str(j)+"/renderurl/?geneid="+str(i)
             sub_url  = main_url+"&redirect=true"
-            status = getCode(main_url)
+            status = getCode(main_url)            
             html.append('<td><a href=%s>%s</a>'%(sub_url,status))
+            if status !=200:
+                count += 1
             html.append('</td>')
+        html.append('<td>%s</td>'%count)
         html.append("</tr>")
     html.append("</tbody")
     html2 = '''
@@ -138,7 +146,7 @@ def get_html_table(url,gene_id_list):
     html.append("</table")     
     html.append('</body>')
     html_table=  "\n".join(html)    
-    html_file = open("output_human_gene_id.html","w")
+    html_file = open("ouputfile_human_gene_id.html","w")
     html_file.write(html_table)
     html_file.close()
     return html_file
