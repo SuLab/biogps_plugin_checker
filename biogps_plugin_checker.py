@@ -2,7 +2,6 @@ import urllib2      #To open url
 import json         #To load json data
 import httplib2     #To get status code
 
-#human_gene_id_list = [1017,7157,695]
 human_gene_id_list = [1017,7157,695,3702,5599,3558,1743,65220,132,3485]
 mouse_gene_id_list = [12566,22059,12229,16428,26419,16183,78920,192185,11534,16008]
 rat_gene_id_list = [362817,24842,367901,363577,116554,116562,299201,100125370,25368,25662]
@@ -28,9 +27,14 @@ def getCode(main_url):
     for lines in data:           
         data1 = json.loads(lines)                    
         try:
-            data2 = data1['url']    
+            
+            data2 = data1['url']
+            if data2.startswith('/'):
+                data3 = "http://biogps.org/"+data2
+            else:
+                data3 = data2
             h = httplib2.Http(timeout=30)
-            resp,content = h.request(data2)
+            resp,content = h.request(data3)
             d1 = resp.status           
         except:
             d1 = "Error"
@@ -146,7 +150,7 @@ def get_html_table(url,gene_id_list):
     html.append("</table")     
     html.append('</body>')
     html_table=  "\n".join(html)    
-    html_file = open("ouputfile_human_gene_id.html","w")
+    html_file = open("output_human_gene_id.html","w")
     html_file.write(html_table)
     html_file.close()
     return html_file
